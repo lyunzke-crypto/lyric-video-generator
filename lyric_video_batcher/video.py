@@ -360,11 +360,8 @@ def render_lyric_rgba_frame(
     if blur_distance > 0:
         block = apply_directional_motion_blur(block, blur_distance)
 
-    x = int(width * motion["x"])
-    y = int(height * motion["y"])
-    if motion["anchor"] == "center":
-        x -= block.width // 2
-        y -= block.height // 2
+    x = int(width * motion["x"]) - int(round(block.width * float(motion["anchor_x"])))
+    y = int(height * motion["y"]) - int(round(block.height * float(motion["anchor_y"])))
     alpha_composite_clipped(frame, block, x, y)
     return frame
 
@@ -871,7 +868,8 @@ def lyric_push_motion(
             "x": lerp(start_x, 0.36, local),
             "y": lerp(start_y, 0.38, local),
             "depth": local * 0.25,
-            "anchor": "center",
+            "anchor_x": lerp(0.50, 0.38, local),
+            "anchor_y": lerp(0.50, 0.38, local),
         }
 
     if p < 0.64:
@@ -882,7 +880,8 @@ def lyric_push_motion(
             "x": lerp(0.36, 0.18, local),
             "y": lerp(0.38, 0.30, local),
             "depth": lerp(0.25, 0.78, local),
-            "anchor": "center" if local < 0.35 else "left",
+            "anchor_x": lerp(0.38, 0.0, local),
+            "anchor_y": lerp(0.38, 0.0, local),
         }
 
     local = ease_out_cubic((p - 0.64) / 0.36)
@@ -892,7 +891,8 @@ def lyric_push_motion(
         "x": lerp(0.18, -0.28, local),
         "y": lerp(0.30, 0.10, local),
         "depth": lerp(0.78, 1.0, local),
-        "anchor": "left",
+        "anchor_x": 0.0,
+        "anchor_y": 0.0,
     }
 
 
