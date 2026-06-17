@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import math
 import random
 from pathlib import Path
 from typing import Optional
@@ -860,39 +859,14 @@ def lyric_push_motion(
     progress: float, zoom_start: float, zoom_end: float, start_x: float, start_y: float
 ) -> dict[str, object]:
     p = normalized_progress(progress)
-    if p < 0.18:
-        local = ease_out_cubic(p / 0.18)
-        return {
-            "scale": lerp(zoom_start, max(0.35, zoom_start), local),
-            "opacity": lerp(0.0, 1.0, local),
-            "x": lerp(start_x, 0.36, local),
-            "y": lerp(start_y, 0.38, local),
-            "depth": local * 0.25,
-            "anchor_x": lerp(0.50, 0.38, local),
-            "anchor_y": lerp(0.50, 0.38, local),
-        }
-
-    if p < 0.64:
-        local = ease_out_cubic((p - 0.18) / 0.46)
-        return {
-            "scale": lerp(max(0.35, zoom_start), 1.2, local),
-            "opacity": 1.0,
-            "x": lerp(0.36, 0.18, local),
-            "y": lerp(0.38, 0.30, local),
-            "depth": lerp(0.25, 0.78, local),
-            "anchor_x": lerp(0.38, 0.0, local),
-            "anchor_y": lerp(0.38, 0.0, local),
-        }
-
-    local = ease_out_cubic((p - 0.64) / 0.36)
     return {
-        "scale": lerp(1.2, zoom_end, local),
-        "opacity": lerp(1.0, 0.0, local),
-        "x": lerp(0.18, -0.28, local),
-        "y": lerp(0.30, 0.10, local),
-        "depth": lerp(0.78, 1.0, local),
-        "anchor_x": 0.0,
-        "anchor_y": 0.0,
+        "scale": lerp(zoom_start, zoom_end, p),
+        "opacity": linear_push_opacity(p),
+        "x": lerp(start_x, -0.18, p),
+        "y": lerp(start_y, 0.16, p),
+        "depth": p,
+        "anchor_x": 0.5,
+        "anchor_y": 0.5,
     }
 
 
@@ -900,18 +874,12 @@ def clamp(value: float, minimum: float, maximum: float) -> float:
     return min(maximum, max(minimum, value))
 
 
-def staged_push_progress(progress: float, hold_near: float) -> float:
-    far_end = 0.10
-    near_start = max(far_end + 0.01, 1.0 - hold_near)
-    if progress <= far_end:
-        return 0.0
-    if progress >= near_start:
-        return 1.0
-    return normalized_progress((progress - far_end) / (near_start - far_end))
-
-
-def ease_out_cubic(value: float) -> float:
-    return 1 - math.pow(1 - value, 3)
+def linear_push_opacity(progress: float) -> float:
+    if progress <= 0.12:
+        return progress / 0.12
+    if progress >= 0.78:
+        return (1.0 - progress) / 0.22
+    return 1.0
 
 
 def lerp(start: float, end: float, amount: float) -> float:
