@@ -8,9 +8,9 @@ Windows 11 本地批量 Lyric Video 生成工具。当前版本使用 MoviePy + 
 
 - 整组文字稳定向镜头推进
 - 无 jitter / shake / wobble / random offset
-- 位置每句只确定一次，同一句期间固定
-- `scale` 从 `0.25` 到 `1.8`
-- `opacity` 从 `20%` 到 `100%`
+- 从道路远处消失点的小字淡入，推进到中左大字，再继续放大穿过镜头淡出
+- `scale` 典型为 `0.08 → 0.35 → 1.2 → 2.8`
+- `opacity` 为 `0 → 100% → 100% → 0`
 - 使用 smooth cubic ease-out
 - 无弹跳、无旋转、无逐字乱动
 - 白色或近白色超粗无衬线大字
@@ -35,14 +35,14 @@ Windows 11 本地批量 Lyric Video 生成工具。当前版本使用 MoviePy + 
 
 默认：
 
-- `--text-x 0.08`
-- `--text-y 0.25`
+- `--text-x 0.50`
+- `--text-y 0.42`
 - 左对齐
 - 多行堆叠
 - 行距紧
 - 每行约 10-14 个英文字符，或 6-10 个中文字
 
-智能路况匹配只在每句歌词开始前取样一次，用于轻微微调位置。它会优先避开车灯、路灯、强光区域和道路中央远处消失点；如果识别失败，回退到 `text-x=0.08`、`text-y=0.25`。
+动态歌词从 `text-x=0.50`、`text-y=0.42` 附近开始，模拟道路尽头远处小字；推进过程中会平滑移动到中左区域，不使用底部静态字幕层。
 
 ## 安装
 
@@ -110,13 +110,13 @@ GIVE ME ONE CHANCE NOT TO LET GO
 当使用 `--background-video` 时，程序只使用该文件，不会随机选择其它背景。
 
 ```powershell
-python -m lyric_video_batcher --input examples\input --output outputs --background-video "H:\【MV_Backgrounds】\驾驶\雨天驾驶（伤感神器）\wet road driving\wet road driving005.mp4" --animation-style tiktok --zoom-start 0.25 --zoom-end 1.8 --text-x 0.08 --text-y 0.25 --lyric-offset 0 --overwrite
+python -m lyric_video_batcher --input examples\input --output outputs --background-video "H:\【MV_Backgrounds】\驾驶\雨天驾驶（伤感神器）\wet road driving\wet road driving005.mp4" --animation-style tiktok --zoom-start 0.08 --zoom-end 2.8 --text-x 0.50 --text-y 0.42 --lyric-offset 0 --overwrite
 ```
 
 双语测试命令：
 
 ```powershell
-python -m lyric_video_batcher --input examples\input --output outputs --background-video "H:\【MV_Backgrounds】\驾驶\雨天驾驶（伤感神器）\wet road driving\wet road driving005.mp4" --animation-style tiktok --bilingual --english-scale 0.7 --zoom-start 0.25 --zoom-end 1.8 --text-x 0.08 --text-y 0.25 --lyric-offset 0 --overwrite
+python -m lyric_video_batcher --input examples\input --output outputs --background-video "H:\【MV_Backgrounds】\驾驶\雨天驾驶（伤感神器）\wet road driving\wet road driving005.mp4" --animation-style tiktok --bilingual --english-scale 0.7 --zoom-start 0.08 --zoom-end 2.8 --text-x 0.50 --text-y 0.42 --lyric-offset 0 --overwrite
 ```
 
 ## 其它参数
@@ -140,7 +140,7 @@ python -m lyric_video_batcher --input examples\input --output outputs --backgrou
 ```text
 outputs/
   song/
-    song.srt
+    song_lyrics.srt
     song.mp4
     song_MV_prompt.txt
 ```
